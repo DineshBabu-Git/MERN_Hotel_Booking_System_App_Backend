@@ -9,14 +9,14 @@ const { sendPaymentReceipt } = require("../utils/sendEmail");
 // Create Order (Razorpay)
 exports.createPaymentIntent = async (req, res) => {
     try {
-        const { amount, bookingId, currency = "INR" } = req.body;
+        const { amount, bookingId, currency = "USD" } = req.body;
 
         if (!amount || amount <= 0) {
             return res.status(400).json({ message: "Invalid amount" });
         }
 
         const order = await razorpay.orders.create({
-            amount: Math.round(amount * 100), // Razorpay uses paise (1 INR = 100 paise)
+            amount: Math.round(amount * 100), // Razorpay uses cents (1 USD = 100 cents)
             currency,
             receipt: bookingId || `order_${Date.now()}`,
             notes: {
@@ -112,7 +112,7 @@ exports.getPaymentStatus = async (req, res) => {
 
         res.json({
             status: payment.status,
-            amount: payment.amount / 100, // Convert paise to INR
+            amount: payment.amount / 100, // Convert Cents to Doller
             currency: payment.currency,
             method: payment.method,
             email: payment.email,
@@ -144,7 +144,7 @@ exports.refundPayment = async (req, res) => {
 
         // Create refund with Razorpay
         const refund = await razorpay.payments.refund(booking.razorpayPaymentId, {
-            amount: Math.round(booking.totalPrice * 100), // Paise
+            amount: Math.round(booking.totalPrice * 100), // Cents
             notes: {
                 reason: reason || "requested_by_customer",
                 bookingId: bookingId
@@ -159,7 +159,7 @@ exports.refundPayment = async (req, res) => {
         res.json({
             message: "Refund processed successfully",
             refundId: refund.id,
-            refundAmount: refund.amount / 100, // Convert to INR
+            refundAmount: refund.amount / 100, // Convert to USD
             status: refund.status,
             booking
         });
