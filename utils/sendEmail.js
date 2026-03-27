@@ -3,7 +3,7 @@ const sgMail = require("@sendgrid/mail");
 
 // ================== CONFIGURE TRANSPORTER ==================
 const createTransporter = () => {
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY_NEW);
 
     return {
         sendMail: async (mailOptions, callback) => {
