@@ -58,7 +58,7 @@ exports.createBooking = async (req, res) => {
 
         // limit guests per room and global cap
         if (numberOfGuests > 6 || (room.maxGuests && numberOfGuests > room.maxGuests)) {
-            return res.status(400).json({ message: `Number of guests exceeds allowed limit (max ${room.maxGuests} guests)`});
+            return res.status(400).json({ message: `Number of guests exceeds allowed limit (max ${room.maxGuests} guests)` });
         }
 
         // Calculate price
@@ -300,10 +300,10 @@ exports.updateBookingStatus = async (req, res) => {
             };
 
             const content = statusEmailContent[bookingStatus] || { title: "Booking Update", message: `Your booking status has been updated to ${bookingStatus}` };
-            
+
             const { sendCustomEmail } = require("../utils/sendEmail");
             await sendCustomEmail({
-                to: booking.userId.email,
+                to: booking.guestEmail,
                 subject: `${content.title} - Hotel Booking System (ID: ${booking._id})`,
                 html: `
                     <h2>${content.title}</h2>
