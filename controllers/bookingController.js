@@ -183,7 +183,12 @@ exports.confirmBooking = async (req, res) => {
         }
 
         // Send confirmation email
-        await sendBookingConfirmation(booking);
+        try {
+            await sendBookingConfirmation(booking);
+        } catch (emailErr) {
+            console.error("Error sending booking confirmation email:", emailErr.message);
+            // Don't fail the booking confirmation if email fails
+        }
 
         res.json({
             message: "Booking confirmed successfully",
