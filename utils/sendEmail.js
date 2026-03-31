@@ -25,16 +25,32 @@ const brevoClient = initializeBrevo();
 // Helper function to send email via Brevo
 const sendMailViaBrevo = async (mailOptions) => {
     try {
+        // Helper to strip HTML tags for text content
+        const stripHtmlTags = (html) => {
+            return html.replace(/<[^>]*>/g, '').trim();
+        };
+
+        const htmlContent = mailOptions.html || "";
+        const textContent = mailOptions.text || stripHtmlTags(htmlContent) || "Email content";
+
         const payload = {
             to: [{ email: mailOptions.to }],
             sender: {
                 name: "Hotel Booking Team",
                 email: mailOptions.from || process.env.EMAIL_FROM || "noreply@hotelbooking.com"
             },
-            subject: mailOptions.subject,
-            htmlContent: mailOptions.html || "",
-            textContent: mailOptions.text || ""
+            subject: mailOptions.subject
         };
+
+        // Only add content if available
+        if (htmlContent) {
+            payload.htmlContent = htmlContent;
+        }
+        if (textContent && textContent !== "Email content") {
+            payload.textContent = textContent;
+        } else if (!htmlContent) {
+            payload.textContent = "Email content";
+        }
 
         const response = await brevoClient.post("/smtp/email", payload);
 
