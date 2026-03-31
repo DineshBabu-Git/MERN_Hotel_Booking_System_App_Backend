@@ -1,48 +1,55 @@
-const { Resend } = require("resend");
+const axios = require("axios");
 
-// ================== CONFIGURE RESEND ==================
-const initializeResend = () => {
-    const apiKey = process.env.RESEND_API_KEY;
+// ================== CONFIGURE BREVO ==================
+const initializeBrevo = () => {
+    const apiKey = process.env.BREVO_API_KEY;
 
     if (!apiKey) {
-        console.error("❌ RESEND_API_KEY environment variable is missing!");
-        console.error("Please set RESEND_API_KEY in your .env file");
+        console.error("❌ BREVO_API_KEY environment variable is missing!");
+        console.error("Please set BREVO_API_KEY in your .env file");
     } else {
-        console.log("✓ Resend email service initialized successfully");
+        console.log("✓ Brevo email service initialized successfully");
     }
 
-    return new Resend(apiKey);
+    return axios.create({
+        baseURL: "https://api.brevo.com/v3",
+        headers: {
+            "api-key": apiKey,
+            "Content-Type": "application/json"
+        }
+    });
 };
 
-const resend = initializeResend();
+const brevoClient = initializeBrevo();
 
-// Helper function to send email via Resend
-const sendMailViaResend = async (mailOptions) => {
+// Helper function to send email via Brevo
+const sendMailViaBrevo = async (mailOptions) => {
     try {
-        const response = await resend.emails.send({
-            from: mailOptions.from || process.env.EMAIL_FROM || "noreply@hotelbooking.com",
-            to: mailOptions.to,
+        const payload = {
+            to: [{ email: mailOptions.to }],
+            sender: {
+                name: "Hotel Booking Team",
+                email: mailOptions.from || process.env.EMAIL_FROM || "noreply@hotelbooking.com"
+            },
             subject: mailOptions.subject,
-            html: mailOptions.html || "",
-            text: mailOptions.text || ""
-        });
+            htmlContent: mailOptions.html || "",
+            textContent: mailOptions.text || ""
+        };
 
-        if (response.error) {
-            throw new Error(response.error.message);
-        }
+        const response = await brevoClient.post("/smtp/email", payload);
 
         return {
             accepted: [mailOptions.to],
-            messageId: response.data?.id || "success",
+            messageId: response.data.messageId || "success",
             response: response.data
         };
     } catch (error) {
-        console.error("❌ Resend Error:", error.message);
+        console.error("❌ Brevo Error:", error.response?.data?.message || error.message);
 
-        if (error.message.includes("Unauthorized")) {
-            console.error("⚠️ RESEND API KEY INVALID - Check RESEND_API_KEY in .env file");
-        } else if (error.message.includes("rate limit")) {
-            console.error("⚠️ RESEND RATE LIMIT EXCEEDED - Please try again later");
+        if (error.response?.status === 401) {
+            console.error("⚠️ BREVO API KEY INVALID - Check BREVO_API_KEY in .env file");
+        } else if (error.response?.status === 429) {
+            console.error("⚠️ BREVO RATE LIMIT EXCEEDED - Please try again later");
         }
         throw error;
     }
@@ -73,7 +80,7 @@ exports.sendBookingConfirmation = async (booking) => {
             `
         };
 
-        await sendMailViaResend(mailOptions);
+        await sendMailViaBrevo(mailOptions);
         console.log("✓ Booking confirmation email sent to", booking.guestEmail);
     } catch (error) {
         console.error("Error sending booking confirmation email:", error.message);
@@ -106,7 +113,7 @@ exports.sendCancellationEmail = async (booking) => {
             `
         };
 
-        await sendMailViaResend(mailOptions);
+        await sendMailViaBrevo(mailOptions);
         console.log("✓ Cancellation email sent to", booking.guestEmail);
     } catch (error) {
         console.error("Error sending cancellation email:", error.message);
@@ -139,7 +146,7 @@ exports.sendPaymentReceipt = async (booking) => {
             `
         };
 
-        await sendMailViaResend(mailOptions);
+        await sendMailViaBrevo(mailOptions);
         console.log("✓ Payment receipt email sent to", booking.guestEmail);
     } catch (error) {
         console.error("Error sending payment receipt email:", error.message);
@@ -165,7 +172,7 @@ exports.sendReviewReminderEmail = async (userEmail, bookingDetails) => {
             `
         };
 
-        await sendMailViaResend(mailOptions);
+        await sendMailViaBrevo(mailOptions);
         console.log("✓ Review reminder email sent to", userEmail);
     } catch (error) {
         console.error("Error sending review reminder email:", error.message);
@@ -197,7 +204,7 @@ exports.sendOfferNotificationEmail = async (userEmail, offerDetails) => {
             `
         };
 
-        await sendMailViaResend(mailOptions);
+        await sendMailViaBrevo(mailOptions);
         console.log("✓ Offer notification email sent to", userEmail);
     } catch (error) {
         console.error("Error sending offer notification email:", error.message);
@@ -221,7 +228,7 @@ exports.sendUpgradeReminderEmail = async (userEmail, roomName) => {
             `
         };
 
-        await sendMailViaResend(mailOptions);
+        await sendMailViaBrevo(mailOptions);
         console.log("✓ Upgrade reminder email sent to", userEmail);
     } catch (error) {
         console.error("Error sending upgrade reminder email:", error.message);
@@ -266,8 +273,8 @@ exports.sendReviewApprovalEmail = async (userEmail, userName, roomName, reviewCo
                 `
             };
 
-            // Send email via Resend
-            const result = await sendMailViaResend(mailOptions);
+            // Send email via Brevo
+            const result = await sendMailViaBrevo(mailOptions);
             console.log("✓ Review approval notification email sent successfully to", userEmail);
             resolve(result);
         } catch (error) {
@@ -287,7 +294,7 @@ const sendEmail = async (to, subject, text) => {
             subject,
             text
         };
-        await sendMailViaResend(mailOptions);
+        await sendMailViaBrevo(mailOptions);
         console.log("✓ Email sent to", to);
     } catch (error) {
         console.error("Error sending email:", error.message);
@@ -307,7 +314,7 @@ exports.sendCustomEmail = async (options) => {
             subject,
             html
         };
-        await sendMailViaResend(mailOptions);
+        await sendMailViaBrevo(mailOptions);
         console.log("✓ Custom email sent to", to);
     } catch (error) {
         console.error("Error sending custom email:", error.message);
