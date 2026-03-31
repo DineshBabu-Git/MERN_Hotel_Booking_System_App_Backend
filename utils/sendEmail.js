@@ -1,53 +1,48 @@
+const { Resend } = require("resend");
 
-const sgMail = require("@sendgrid/mail");
-
-// ================== CONFIGURE SENDGRID ==================
-const initializeSendGrid = () => {
-    const apiKey = process.env.SENDGRID_API_KEY;
+// ================== CONFIGURE RESEND ==================
+const initializeResend = () => {
+    const apiKey = process.env.RESEND_API_KEY;
 
     if (!apiKey) {
-        console.error("❌ SENDGRID_API_KEY environment variable is missing!");
-        console.error("Please set SENDGRID_API_KEY in your .env file");
+        console.error("❌ RESEND_API_KEY environment variable is missing!");
+        console.error("Please set RESEND_API_KEY in your .env file");
     } else {
-        sgMail.setApiKey(apiKey);
-        console.log("✓ SendGrid email service initialized successfully");
+        console.log("✓ Resend email service initialized successfully");
     }
 
-    return sgMail;
+    return new Resend(apiKey);
 };
 
-const transporter = initializeSendGrid();
+const resend = initializeResend();
 
-// Helper function to send email via SendGrid
-const sendMailViaSendGrid = async (mailOptions) => {
+// Helper function to send email via Resend
+const sendMailViaResend = async (mailOptions) => {
     try {
-        const msg = {
-            to: mailOptions.to,
+        const response = await resend.emails.send({
             from: mailOptions.from || process.env.EMAIL_FROM || "noreply@hotelbooking.com",
+            to: mailOptions.to,
             subject: mailOptions.subject,
             html: mailOptions.html || "",
             text: mailOptions.text || ""
-        };
+        });
 
-        const response = await sgMail.send(msg);
+        if (response.error) {
+            throw new Error(response.error.message);
+        }
+
         return {
             accepted: [mailOptions.to],
-            messageId: response[0]?.messageId || "success",
-            response: response[0]?.statusCode
+            messageId: response.data?.id || "success",
+            response: response.data
         };
     } catch (error) {
-        const errorDetails = error.response?.body || error.message;
-        console.error("❌ SendGrid Error:", JSON.stringify(errorDetails, null, 2));
+        console.error("❌ Resend Error:", error.message);
 
-        // Log specific SendGrid error codes
-        if (error.response?.body?.errors) {
-            error.response.body.errors.forEach(err => {
-                if (err.message.includes("Maximum credits exceeded")) {
-                    console.error("⚠️ SENDGRID CREDITS EXCEEDED - Please upgrade your SendGrid account or add credits");
-                } else if (err.message.includes("Unauthorized")) {
-                    console.error("⚠️ SENDGRID API KEY INVALID - Check SENDGRID_API_KEY in .env file");
-                }
-            });
+        if (error.message.includes("Unauthorized")) {
+            console.error("⚠️ RESEND API KEY INVALID - Check RESEND_API_KEY in .env file");
+        } else if (error.message.includes("rate limit")) {
+            console.error("⚠️ RESEND RATE LIMIT EXCEEDED - Please try again later");
         }
         throw error;
     }
@@ -78,7 +73,7 @@ exports.sendBookingConfirmation = async (booking) => {
             `
         };
 
-        await sendMailViaSendGrid(mailOptions);
+        await sendMailViaResend(mailOptions);
         console.log("✓ Booking confirmation email sent to", booking.guestEmail);
     } catch (error) {
         console.error("Error sending booking confirmation email:", error.message);
@@ -111,7 +106,7 @@ exports.sendCancellationEmail = async (booking) => {
             `
         };
 
-        await sendMailViaSendGrid(mailOptions);
+        await sendMailViaResend(mailOptions);
         console.log("✓ Cancellation email sent to", booking.guestEmail);
     } catch (error) {
         console.error("Error sending cancellation email:", error.message);
@@ -144,7 +139,7 @@ exports.sendPaymentReceipt = async (booking) => {
             `
         };
 
-        await sendMailViaSendGrid(mailOptions);
+        await sendMailViaResend(mailOptions);
         console.log("✓ Payment receipt email sent to", booking.guestEmail);
     } catch (error) {
         console.error("Error sending payment receipt email:", error.message);
@@ -170,7 +165,7 @@ exports.sendReviewReminderEmail = async (userEmail, bookingDetails) => {
             `
         };
 
-        await sendMailViaSendGrid(mailOptions);
+        await sendMailViaResend(mailOptions);
         console.log("✓ Review reminder email sent to", userEmail);
     } catch (error) {
         console.error("Error sending review reminder email:", error.message);
@@ -202,7 +197,7 @@ exports.sendOfferNotificationEmail = async (userEmail, offerDetails) => {
             `
         };
 
-        await sendMailViaSendGrid(mailOptions);
+        await sendMailViaResend(mailOptions);
         console.log("✓ Offer notification email sent to", userEmail);
     } catch (error) {
         console.error("Error sending offer notification email:", error.message);
@@ -226,7 +221,7 @@ exports.sendUpgradeReminderEmail = async (userEmail, roomName) => {
             `
         };
 
-        await sendMailViaSendGrid(mailOptions);
+        await sendMailViaResend(mailOptions);
         console.log("✓ Upgrade reminder email sent to", userEmail);
     } catch (error) {
         console.error("Error sending upgrade reminder email:", error.message);
@@ -271,8 +266,8 @@ exports.sendReviewApprovalEmail = async (userEmail, userName, roomName, reviewCo
                 `
             };
 
-            // Send email via SendGrid
-            const result = await sendMailViaSendGrid(mailOptions);
+            // Send email via Resend
+            const result = await sendMailViaResend(mailOptions);
             console.log("✓ Review approval notification email sent successfully to", userEmail);
             resolve(result);
         } catch (error) {
@@ -292,7 +287,7 @@ const sendEmail = async (to, subject, text) => {
             subject,
             text
         };
-        await sendMailViaSendGrid(mailOptions);
+        await sendMailViaResend(mailOptions);
         console.log("✓ Email sent to", to);
     } catch (error) {
         console.error("Error sending email:", error.message);
@@ -312,7 +307,7 @@ exports.sendCustomEmail = async (options) => {
             subject,
             html
         };
-        await sendMailViaSendGrid(mailOptions);
+        await sendMailViaResend(mailOptions);
         console.log("✓ Custom email sent to", to);
     } catch (error) {
         console.error("Error sending custom email:", error.message);
