@@ -295,7 +295,7 @@ exports.updateBookingStatus = async (req, res) => {
             return res.status(404).json({ message: "Booking not found" });
         }
 
-        // Send status update email
+        // Send status update email (non-blocking)
         try {
             const statusEmailContent = {
                 pending: { title: "Booking Pending", message: "Your booking is awaiting confirmation from the hotel." },
@@ -307,7 +307,9 @@ exports.updateBookingStatus = async (req, res) => {
             const content = statusEmailContent[bookingStatus] || { title: "Booking Update", message: `Your booking status has been updated to ${bookingStatus}` };
 
             const { sendCustomEmail } = require("../utils/sendEmail");
-            await sendCustomEmail({
+
+            // Send email asynchronously without blocking the response
+            sendCustomEmail({
                 to: booking.guestEmail,
                 subject: `${content.title} - Hotel Booking System (ID: ${booking._id})`,
                 html: `
@@ -325,9 +327,16 @@ exports.updateBookingStatus = async (req, res) => {
                     </ul>
                     <p>Best regards,<br>Hotel Management Team</p>
                 `
+            }).catch(err => {
+                // Log email error but don't fail the booking status update
+                console.error("⚠️ Status update email failed (booking update saved):", {
+                    bookingId: booking._id,
+                    guestEmail: booking.guestEmail,
+                    error: err.response?.body?.errors || err.message
+                });
             });
         } catch (emailErr) {
-            console.error("Error sending status update email:", emailErr);
+            console.error("⚠️ Error preparing status update email:", emailErr.message);
         }
 
         res.json({

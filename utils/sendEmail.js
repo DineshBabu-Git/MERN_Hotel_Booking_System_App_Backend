@@ -3,11 +3,11 @@ const sgMail = require("@sendgrid/mail");
 
 // ================== CONFIGURE SENDGRID ==================
 const initializeSendGrid = () => {
-    const apiKey = process.env.SENDGRID_API_KEY_NEW || process.env.SENDGRID_API_KEY;
+    const apiKey = process.env.SENDGRID_API_KEY;
 
     if (!apiKey) {
-        console.error("❌ SENDGRID_API_KEY_NEW or SENDGRID_API_KEY environment variable is missing!");
-        console.error("Please set SENDGRID_API_KEY_NEW in your .env file for production use");
+        console.error("❌ SENDGRID_API_KEY environment variable is missing!");
+        console.error("Please set SENDGRID_API_KEY in your .env file");
     } else {
         sgMail.setApiKey(apiKey);
         console.log("✓ SendGrid email service initialized successfully");
@@ -36,7 +36,19 @@ const sendMailViaSendGrid = async (mailOptions) => {
             response: response[0]?.statusCode
         };
     } catch (error) {
-        console.error("❌ SendGrid Error:", error.response?.body || error.message);
+        const errorDetails = error.response?.body || error.message;
+        console.error("❌ SendGrid Error:", JSON.stringify(errorDetails, null, 2));
+
+        // Log specific SendGrid error codes
+        if (error.response?.body?.errors) {
+            error.response.body.errors.forEach(err => {
+                if (err.message.includes("Maximum credits exceeded")) {
+                    console.error("⚠️ SENDGRID CREDITS EXCEEDED - Please upgrade your SendGrid account or add credits");
+                } else if (err.message.includes("Unauthorized")) {
+                    console.error("⚠️ SENDGRID API KEY INVALID - Check SENDGRID_API_KEY in .env file");
+                }
+            });
+        }
         throw error;
     }
 };
