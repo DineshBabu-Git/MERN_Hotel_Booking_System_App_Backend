@@ -7,8 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
     "seed": "node utils/seed.js",
-    "seed:all": "npm run seed && npm run seed:reviews && npm run seed:bookings && npm run seed:offers",
+    "seed:all": "npm run seed:users && npm run seed && npm run seed:reviews && npm run seed:bookings && npm run seed:offers",
     "seed:rooms": "node utils/seed.js",
+    "seed:users": "node utils/seedUsers.js",
     "seed:reviews": "node utils/seedReviews.js",
     "seed:bookings": "node utils/seedBookings.js",
     "seed:offers": "node utils/seedOffers.js"
