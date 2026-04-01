@@ -1,485 +1,343 @@
-# 🏨 MERN Hotel Booking System
 
-> A comprehensive full-stack hotel booking and management platform built with the MERN stack (MongoDB, Express, React, Node.js). Features real-time availability, payment processing, admin analytics, and email notifications.
+# 🏨 MERN Stack - Hotel Booking System - Backend
 
-------------------------------------------------------------------------------
+> Express.js & MongoDB backend for the MERN Hotel Booking System. Provides RESTful APIs for authentication, room management, booking processing, payment handling, and admin analytics.
 
-## 🎯 Overview
+---
 
-The **MERN Hotel Booking System** is a production-ready hotel management and booking platform that enables:
+## 🔐 Demo Credentials
 
-- **Users** to discover, book, and review hotel rooms
-- **Admins** to manage rooms, bookings, offers, and view comprehensive analytics
-- **Seamless payments** via Razorpay integration
-- **Automated email notifications** via Brevo email service
-- **Real-time availability tracking** based on check-in/check-out dates
+Use these credentials to test the application:
 
-------------------------------------------------------------------------------
+### Regular User
+```
+Email: user@demo.com
+Password: demo123
+```
 
-## ✨ Features
+### Admin User
+```
+Email: admin@demo.com
+Password: admin123
+```
 
-### 👥 Customer Features
+### Test Payment Credentials (Razorpay)
 
-| Feature | Description |
-|---------|-------------|
-| **User Authentication** | Secure registration & login with JWT-based sessions |
-| **Room Discovery** | Advanced search, filtering, and sorting capabilities |
-| **Room Details** | View detailed room information, images, amenities, and pricing |
-| **Availability Check** | Real-time availability checking based on selected dates |
-| **Booking Management** | Create, modify, and cancel bookings with instant confirmations |
-| **Payment Processing** | Secure payments via Razorpay integration |
-| **Discount & Offers** | Apply promo codes for special discounts |
-| **Review System** | Submit ratings and detailed reviews after stay |
-| **Email Notifications** | Automated confirmation, cancellation, and Review Approval emails |
-| **User Dashboard** | View booking history and manage profile |
-| **Favorites** | Save preferred rooms for quick access |
-| **Responsive Design** | Optimized for mobile, tablet, and desktop |
+#### Network  | #### Card Number  | #### CVV & Expiry Date
 
+Visa		      4100 2800 0000 1007	
+Mastercard	  5500 6700 0000 1002
+RuPay		      6527 6589 0000 1005   Use a random CVV and any future date
+Diners		    3608 280009 1007
+Amex		      3402 560004 01007
 
-### 🛠️ Admin Features
+#### Example :
+- **Card Number:** 6527 6589 0000 1005
+- **Expiry:** Any future date (e.g., 12/30)
+- **CVV:** Any 3 digits (e.g., 123)
+- **OTP:** 123456
 
-| Feature | Description |
-|---------|-------------|
-| **Room Management** | Create, edit, and delete room listings with images |
-| **Booking Management** | View all bookings with status updates and guest details |
-| **Offer Management** | Create and manage promotional offers with discount rules |
-| **Review Moderation** | Approve/reject reviews and respond to guests |
-| **Analytics Dashboard** | Comprehensive business insights and metrics |
-| **Revenue Reports** | Monthly revenue tracking and trends |
-| **Occupancy Metrics** | Room availability and occupancy rates |
-| **Booking Trends** | Historical booking patterns and forecasts |
-| **Room Performance** | Track best and worst performing rooms |
-| **Review Analytics** | Monitor guest satisfaction and feedback |
-| **User Demographics** | Guest data and booking patterns analysis |
+---
 
-------------------------------------------------------------------------------
+## 📋 Overview
 
-### 🎨 UI/UX Enhancements
+The backend is a robust Node.js/Express API server that handles:
+- User authentication and authorization (JWT-based)
+- Room catalog management
+- Booking creation and status tracking
+- Razorpay payment processing
+- Email notifications via Brevo
+- Admin analytics and reporting
+- Offer/discount management
+- Review moderation
 
-- **Loading Animations** - Smooth spinner animations during form submissions
-- **Vertical Scrolling** - Optimized scroll for filter sections on Rooms page
-- **Error Handling** - User-friendly error messages and validation
-- **Toast Notifications** - Success/error alerts for user actions
-- **Sticky Navigation** - Always accessible header and filters
-- **Colorful Themes** - Responsive design principles
+**Base URL:** `http://localhost:5000/api`
 
-------------------------------------------------------------------------------
+---
 
 ## 🛠️ Tech Stack
 
-### Frontend
-```
-Core Framework:
-- React 19.2.0
-- React Router 7.13.0 (Navigation)
-- Vite 7.3.1 (Build tool)
-
-Styling & UI:
-- Tailwind CSS 4.1.18 (Utility CSS)
-- Lucide React (Icon library)
-- Swiper 12.1.2 (Carousel/Slider)
-
-API & State:
-- Axios 1.13.5 (HTTP Client)
-
-Development:
-- ESLint (Linting)
-- Node 18+
-```
-
-### Backend
 ```
 Server & Framework:
 - Node.js 18+
 - Express.js 5.2.1
 
 Database:
-- MongoDB 9.1.3 (NoSQL)
+- MongoDB 9.1.3
 - Mongoose 9.1.3 (ODM)
 
 Authentication & Security:
 - JWT (JSON Web Tokens)
 - bcryptjs 3.0.3 (Password hashing)
-- CORS 2.8.5 (Cross-origin support)
+- CORS 2.8.5
 
-Payment & Email:
+Payment & Services:
 - Razorpay 2.8.2 (Payment gateway)
-- Axios 1.8.0 (HTTP requests for Brevo)
-
-Utilities:
+- Axios 1.8.0 (HTTP client for Brevo)
 - dotenv 17.2.3 (Environment variables)
-- Nodemon 3.1.11 (Development auto-reload)
+
+Development:
+- Nodemon 3.1.11 (Auto-reload)
 ```
 
-------------------------------------------------------------------------------
+---
 
 ## 📁 Project Structure
 
 ```
-MERN_Hotel_Booking_System_App/
-│
-├── backend/
-│   ├── config/
-│   │   └── mongodb.js              # MongoDB connection setup
-│   │
-│   ├── controllers/
-│   │   ├── authController.js       # User authentication logic
-│   │   ├── roomController.js       # Room management
-│   │   ├── bookingController.js    # Booking operations
-│   │   ├── paymentController.js    # Payment processing (Razorpay)
-│   │   ├── reviewController.js     # Review management
-│   │   ├── offerController.js      # Offer/discount logic
-│   │   └── adminController.js      # Admin analytics and stats
-│   │
-│   ├── models/
-│   │   ├── User.js                 # User schema
-│   │   ├── Room.js                 # Room schema
-│   │   ├── Booking.js              # Booking schema
-│   │   ├── Review.js               # Review schema
-│   │   ├── Offer.js                # Offer schema
-│   │   └── Payment.js              # Payment schema
-│   │
-│   ├── routes/
-│   │   ├── authRoutes.js           # Authentication endpoints
-│   │   ├── roomRoutes.js           # Room endpoints
-│   │   ├── bookingRoutes.js        # Booking endpoints
-│   │   ├── paymentRoutes.js        # Payment endpoints
-│   │   ├── reviewRoutes.js         # Review endpoints
-│   │   ├── offerRoutes.js          # Offer endpoints
-│   │   └── adminRoutes.js          # Admin endpoints
-│   │
-│   ├── middleware/
-│   │   ├── authMiddleware.js       # JWT verification
-│   │   ├── errorHandler.js         # Global error handling
-│   │   └── validate.js             # Request validation
-│   │
-│   ├── utils/
-│   │   ├── sendEmail.js            # Email service (Brevo)
-│   │   ├── seed.js                 # Database seeding
-│   │   ├── mockRooms.js            # Sample room data
-│   │   └── logger.js               # Logging utility
-│   │
-│   ├── server.js                   # Express app entry point
-│   ├── package.json
-│   └── .env                        # Environment variables
-│
-└── frontend/
-    ├── src/
-    │   ├── pages/
-    │   │   ├── Home.jsx            # Landing page
-    │   │   ├── Login.jsx           # User login
-    │   │   ├── Register.jsx        # User registration
-    │   │   ├── Rooms.jsx           # Room browse & filter
-    │   │   ├── RoomDetails.jsx     # Individual room view
-    │   │   ├── BookingPage.jsx     # Booking creation
-    │   │   ├── Dashboard.jsx       # User dashboard
-    │   │   ├── Offers.jsx          # Offers page
-    │   │   ├── Reviews.jsx         # Reviews listing
-    │   │   ├── WriteReview.jsx     # Review submission
-    │   │   └── AdminDashboard.jsx  # Admin panel
-    │   │
-    │   ├── components/
-    │   │   ├── Navbar.jsx          # Navigation header
-    │   │   ├── RoomCard.jsx        # Room listing card
-    │   │   └── CheckoutForm.jsx    # Payment form (Razorpay)
-    │   │
-    │   ├── services/
-    │   │   └── api.js              # Axios API client
-    │   │
-    │   ├── assets/                 # Images, fonts, etc.
-    │   ├── App.jsx                 # Main app component
-    │   └── main.jsx                # React entry point
-    │
-    ├── public/                     # Static files
-    ├── package.json
-    └── .env                        # Frontend environment variables
+backend/
+├── config/
+│   └── db.js                  # MongoDB connection
+├── controllers/
+│   ├── authController.js      # Login, Register, Profile
+│   ├── roomController.js      # Room CRUD operations
+│   ├── bookingController.js   # Booking management
+│   ├── paymentController.js   # Razorpay integration
+│   ├── reviewController.js    # Review operations
+│   ├── offerController.js     # Offers/discounts
+│   └── adminController.js     # Analytics & reporting
+├── models/
+│   ├── User.js                # User schema
+│   ├── Room.js                # Room schema
+│   ├── Booking.js             # Booking schema
+│   ├── Review.js              # Review schema
+│   └── Offer.js               # Offer schema
+├── routes/
+│   ├── authRoutes.js
+│   ├── roomRoutes.js
+│   ├── bookingRoutes.js
+│   ├── paymentRoutes.js
+│   ├── reviewRoutes.js
+│   ├── offerRoutes.js
+│   └── adminRoutes.js
+├── middleware/
+│   └── authMiddleware.js      # JWT verification
+├── utils/
+│   ├── seed.js                # Database seeding (rooms)
+│   ├── seedUsers.js           # User seeding with demo accounts
+│   ├── seedBookings.js        # Booking seeding
+│   ├── seedOffers.js          # Offer seeding
+│   ├── seedReviews.js         # Review seeding
+│   ├── mockRooms.js           # Sample room data
+│   └── sendEmail.js           # Brevo email service
+├── server.js                  # Express app entry point
+├── package.json
+└── .env                       # Environment variables
 ```
 
-------------------------------------------------------------------------------
+---
 
-## 📋 Prerequisites
+## 🚀 Installation & Setup
 
-Ensure you have the following installed:
+### Prerequisites
 
-| Software | Version | Purpose |
-|----------|---------|---------|
-| **Node.js** | 18.0.0+ | JavaScript runtime |
-| **npm** or **yarn** | Latest | Package manager |
-| **MongoDB** | 4.0+ | Database (local or Atlas) |
-| **Git** | Latest | Version control |
+- Node.js 18.0.0+
+- npm or yarn
+- MongoDB (local or Atlas)
+- Git
 
-### External Services Required:
-
-1. **MongoDB Atlas** - Cloud database
-2. **Razorpay Account** - Payment processing
-3. **Brevo Account** - Email service (formerly Sendinblue)
-4. **Verified Email Sender** - For email notifications
-
-------------------------------------------------------------------------------
-
-## 🚀 Installation
-
-### Step 1: Clone the Repository
-
-```bash
-git clone https://github.com/DineshBabu-Git/MERN_Hotel_Booking_System_App_Frontend.git
-
-git clone https://github.com/DineshBabu-Git/MERN_Hotel_Booking_System_App_Backend.git
-
-cd MERN_Hotel_Booking_System_App
-```
-
-### Step 2: Backend Setup
+### Step 1: Install Dependencies
 
 ```bash
 cd backend
-
-# Install dependencies
 npm install
-
-# Start the development server
-npm start
-# Or use nodemon for auto-reload:
-npm run dev
 ```
 
-The backend will run on: `http://localhost:5000`
+### Step 2: Create `.env` File
 
-### Step 3: Frontend Setup
-
-```bash
-cd ../frontend
-
-# Install dependencies
-npm install
-
-# Start the development server
-npm run dev
-```
-
-The frontend will run on: `http://localhost:5173`
-
-### Step 4: Database Seeding (Optional)
-
-To populate the database with sample data:
-
-```bash
-cd backend
-npm run seed          # Seed all data
-npm run seed:rooms    # Seed rooms only
-npm run seed:reviews  # Seed reviews
-npm run seed:bookings # Seed bookings
-npm run seed:offers   # Seed offers
-```
-
-------------------------------------------------------------------------------
-
-## 🔐 Environment Variables
-
-### Backend `.env` Configuration
-
-Create a `.env` file in the `backend/` directory:
+Create `backend/.env` with:
 
 ```env
 # Database
-MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/database-name
+MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/hotel-booking
 
-# JWT Configuration
-JWT_SECRET=your_super_secret_jwt_key_here
+# JWT Secret
+JWT_SECRET=your_super_secret_jwt_key_here_change_in_production
 
-# Razorpay Payment Gateway
-RAZORPAY_KEY_ID=your_razorpay_key_id
+# Razorpay API Keys
+RAZORPAY_KEY_ID=rzp_test_your_test_key_id
 RAZORPAY_KEY_SECRET=your_razorpay_secret_key
 
-# Email Service (Brevo)
-BREVO_API_KEY=your_brevo_api_key
+# Brevo Email Service
+BREVO_API_KEY=your_brevo_api_key_here
 EMAIL_FROM=noreply@yourdomain.com
 
 # Frontend URL
 FRONTEND_URL=http://localhost:5173
 
-# Server Port
+# Server Configuration
 PORT=5000
-
-# Node Environment
 NODE_ENV=development
 ```
 
-### Frontend `.env` Configuration
+### Step 3: Seed Demo Data
 
-Create a `.env` file in the `frontend/` directory:
+```bash
+# Seed all data (rooms, users, bookings, offers, reviews)
+npm run seed:all
 
-```env
-# API Base URL
-VITE_API_BASE_URL=http://localhost:5000/api
-
-# Razorpay
-VITE_RAZORPAY_KEY_ID=your_razorpay_key_id
+# Or seed individually:
+npm run seed                # Just rooms
+npm run seed:users          # Demo user accounts
+npm run seed:bookings       # Sample bookings
+npm run seed:offers         # Discount offers
+npm run seed:reviews        # Sample reviews
 ```
 
-### 🔑 Getting API Keys
+### Step 4: Start the Server
 
-#### MongoDB Atlas
-1. Go to [MongoDB Cloud](https://cloud.mongodb.com)
-2. Create a cluster
-3. Get your connection string
-
-#### Razorpay
-1. Sign up at [Razorpay](https://razorpay.com)
-2. Go to Dashboard → API Keys
-3. Copy Key ID and Secret
-
-#### Brevo
-1. Register at [Brevo](https://www.brevo.com)
-2. Verify a sender email address
-3. Go to Account → API Keys
-4. Generate and copy your API key
-
-------------------------------------------------------------------------------
-
-## ▶️ Running the Project
-
-### Development Mode (Recommended)
-
-**Terminal 1: Backend**
 ```bash
-cd backend
+# Development with auto-reload
 npm start
+
+# Or use nodemon directly
+npx nodemon server.js
 ```
 
-**Terminal 2: Frontend**
-```bash
-cd frontend
-npm run dev
+The backend will be available at: **http://localhost:5000**
+
+---
+
+## 📚 API Endpoints
+
+### Authentication
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|----------------|
+| POST | `/auth/register` | Register new user | ❌ |
+| POST | `/auth/login` | Login user | ❌ |
+| GET | `/auth/profile` | Get user profile | ✅ |
+| PUT | `/auth/profile` | Update profile | ✅ |
+
+**Login Request:**
+```json
+{
+  "email": "user@demo.com",
+  "password": "demo123"
+}
 ```
 
-### Production Build
-
-**Frontend Build:**
-```bash
-cd frontend
-npm run build
-npm run preview
+**Login Response:**
+```json
+{
+  "message": "Login successful",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": "650a1b2c3d4e5f6g7h8i",
+    "name": "John Doe",
+    "email": "user@demo.com",
+    "role": "user"
+  }
+}
 ```
 
-**Backend:** Ready to deploy as-is on Node.js hosting
+---
 
-------------------------------------------------------------------------------
+### Rooms
 
-## 📚 API Documentation
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/rooms` | Get all rooms | ❌ |
+| GET | `/rooms/:id` | Get room details | ❌ |
+| POST | `/rooms` | Create room | ✅ Admin |
+| PUT | `/rooms/:id` | Update room | ✅ Admin |
+| DELETE | `/rooms/:id` | Delete room | ✅ Admin |
 
-### Authentication Endpoints
+---
 
-```
-POST   /api/auth/register       → Register new user
-POST   /api/auth/login          → Login user
-GET    /api/auth/profile        → Get user profile (Protected)
-PUT    /api/auth/profile        → Update profile (Protected)
-POST   /api/auth/logout         → Logout user
-```
+### Bookings
 
-### Room Endpoints
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/bookings` | Get user bookings | ✅ |
+| POST | `/bookings` | Create booking | ✅ |
+| GET | `/bookings/:id` | Get booking details | ✅ |
+| PUT | `/bookings/:id/cancel` | Cancel booking | ✅ |
+| PUT | `/bookings/:id/status` | Update status | ✅ Admin |
 
-```
-GET    /api/rooms               → Get all rooms
-GET    /api/rooms/:id           → Get room by ID
-GET    /api/rooms/availability  → Check availability by date
-POST   /api/rooms               → Create room (Admin)
-PUT    /api/rooms/:id           → Update room (Admin)
-DELETE /api/rooms/:id           → Delete room (Admin)
-```
+---
 
-### Booking Endpoints
+### Payments
 
-```
-GET    /api/bookings            → Get all bookings (User/Admin)
-POST   /api/bookings            → Create new booking
-GET    /api/bookings/:id        → Get booking details
-PUT    /api/bookings/:id/status → Update booking status (Admin)
-PUT    /api/bookings/:id/cancel → Cancel booking
-```
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| POST | `/payments/create-order` | Create order | ✅ |
+| POST | `/payments/verify` | Verify payment | ✅ |
+| GET | `/payments/:id/status` | Check status | ✅ |
 
-### Payment Endpoints
+---
 
-```
-POST   /api/payments/create-order    → Create Razorpay order
-POST   /api/payments/verify          → Verify payment
-GET    /api/payments/:id/status      → Check payment status
-POST   /api/payments/refund          → Process refund (Admin)
-```
+### Reviews
 
-### Review Endpoints
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/reviews` | Get all reviews | ❌ |
+| GET | `/reviews/room/:roomId` | Get room reviews | ❌ |
+| POST | `/reviews` | Submit review | ✅ |
+| PUT | `/reviews/:id/approve` | Approve review | ✅ Admin |
 
-```
-GET    /api/reviews                  → Get all reviews
-POST   /api/reviews                  → Submit review (Protected)
-GET    /api/reviews/room/:roomId     → Get reviews for room
-PUT    /api/reviews/:id/approve      → Approve review (Admin)
-PUT    /api/reviews/:id/response     → Add admin response
-```
+---
 
-### Offer Endpoints
+### Offers
 
-```
-GET    /api/offers                   → Get active offers
-POST   /api/offers/validate          → Validate offer code
-POST   /api/offers                   → Create offer (Admin)
-PUT    /api/offers/:id               → Update offer (Admin)
-DELETE /api/offers/:id               → Delete offer (Admin)
-```
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/offers` | Get active offers | ❌ |
+| POST | `/offers/validate` | Validate code | ✅ |
+| POST | `/offers` | Create offer | ✅ Admin |
+| PUT | `/offers/:id` | Update offer | ✅ Admin |
+| DELETE | `/offers/:id` | Delete offer | ✅ Admin |
 
-### Admin Analytics Endpoints
+---
 
-```
-GET    /api/admin/dashboard          → Dashboard summary stats
-GET    /api/admin/revenue/monthly    → Monthly revenue data
-GET    /api/admin/occupancy          → Room occupancy rates
-GET    /api/admin/trends/booking     → Booking trends
-GET    /api/admin/performance/rooms  → Room performance metrics
-GET    /api/admin/analytics/reviews  → Review analytics
-GET    /api/admin/demographics/users → User demographics
-```
+### Admin Analytics
 
-------------------------------------------------------------------------------
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/admin/dashboard` | Dashboard summary | ✅ Admin |
+| GET | `/admin/revenue/monthly` | Monthly revenue | ✅ Admin |
+| GET | `/admin/occupancy` | Occupancy rates | ✅ Admin |
+| GET | `/admin/trends/booking` | Booking trends | ✅ Admin |
+| GET | `/admin/performance/rooms` | Room performance | ✅ Admin |
 
-## 🗄️ Database Schema
+---
 
-### User Schema
+## 🗄️ Database Schemas
+
+### User
 ```javascript
 {
   name: String,
   email: String (unique),
   password: String (hashed),
   phone: String,
-  avatar: String,
   role: "user" | "admin",
+  avatar: String,
   createdAt: Date,
   updatedAt: Date
 }
 ```
 
-### Room Schema
+### Room
 ```javascript
 {
   name: String,
-  roomType: "single" | "double" | "suite",
+  roomType: String,
   price: Number,
-  bedType: "single" | "double" | "queen" | "king",
+  bedType: String,
   maxGuests: Number,
-  roomSize: Number,
-  view: String,
-  description: String,
   amenities: [String],
-  images: [String] (base64 or URLs),
+  images: [String],
+  description: String,
   totalRooms: Number,
-  isActive: Boolean,
+  availableRooms: Number,
   rating: Number,
   ratingCount: Number,
   createdAt: Date
 }
 ```
 
-### Booking Schema
+### Booking
 ```javascript
 {
   userId: ObjectId (ref: User),
@@ -488,8 +346,8 @@ GET    /api/admin/demographics/users → User demographics
   checkOut: Date,
   numberOfNights: Number,
   numberOfGuests: Number,
-  bookingStatus: "pending" | "confirmed" | "cancelled" | "completed",
-  paymentStatus: "pending" | "paid" | "failed" | "refunded",
+  bookingStatus: String,
+  paymentStatus: String,
   totalPrice: Number,
   originalPrice: Number,
   discountCode: String,
@@ -499,167 +357,102 @@ GET    /api/admin/demographics/users → User demographics
 }
 ```
 
-### Review Schema
-```javascript
-{
-  userId: ObjectId (ref: User),
-  roomId: ObjectId (ref: Room),
-  rating: Number (1-5),
-  comment: String,
-  cleanlinessRating: Number,
-  serviceRating: Number,
-  amenitiesRating: Number,
-  isApproved: Boolean,
-  adminResponse: String,
-  createdAt: Date
-}
-```
+---
 
-------------------------------------------------------------------------------
+## 🔐 Authentication Flow
 
-## 🎯 Key Features Deep Dive
+1. User logs in with email/password
+2. Backend verifies credentials against hashed password
+3. JWT token generated with userId and role
+4. Token sent to frontend and stored in localStorage
+5. Token included in Authorization header for protected routes
+6. Backend middleware verifies JWT on each request
+7. Token expires after 7 days
 
-### 🔐 Authentication & Authorization
+---
 
-- **JWT-based Authentication**: Secure token-based sessions
-- **Role-based Access Control**: User vs Admin permissions
-- **Password Security**: bcryptjs hashing with salt rounds
-- **Protected Routes**: Middleware verification on sensitive endpoints
+## 💳 Payment Flow
 
-### 💳 Payment Integration
+1. Frontend requests order creation
+2. Backend creates Razorpay order
+3. Razorpay modal opens for payment
+4. User enters card details
+5. Razorpay processes payment
+6. Frontend verifies with backend
+7. Backend verifies signature and updates booking
+8. Confirmation email sent to user
 
-- **Razorpay Gateway**: Secure payment processing
-- **Order Management**: Create and verify orders
-- **Refund Processing**: Admin-controlled refunds
-- **Payment Status Tracking**: Real-time payment monitoring
+---
 
-### 📧 Email Notifications
+## 📧 Email Notifications
 
-- **Brevo Email Service**: Reliable email delivery
-- **Booking Confirmations**: Automatic confirmation emails
-- **Cancellation Notices**: Cancellation email notifications
-- **Review Approvals**: Notify users when reviews are approved
-- **Promotional Emails**: Marketing campaign support
+Sends emails via Brevo for:
+- Booking confirmations
+- Payment receipts
+- Booking cancellations
+- Review approvals
 
-### 📊 Analytics Dashboard
-
-- **Revenue Metrics**: Monthly revenue tracking
-- **Occupancy Rates**: Real-time occupancy calculations
-- **Booking Trends**: Historical booking patterns
-- **Room Performance**: Best/worst performing rooms
-- **Review Analytics**: Guest satisfaction insights
-- **User Demographics**: Guest data analysis
-
-### 🎨 UI/UX Improvements
-
-- **Loading Animations**: Smooth spinner on form submissions
-- **Vertical Scrolling**: Optimized filter section scrolling
-- **Responsive Design**: Mobile-first approach
-- **Error Messages**: User-friendly validation feedback
-- **Success Notifications**: Toast alerts for actions
-
-------------------------------------------------------------------------------
-
-## 🌐 Deployment
-
-### Frontend Deployment (Vercel/Netlify)
-
-```bash
-# Build the frontend
-cd frontend
-npm run build
-
-# Deploy to Vercel
-vercel
-
-# Or deploy to Netlify
-netlify deploy --prod --dir=dist
-```
-
-### Backend Deployment (Render/Heroku)
-
-1. Push code to GitHub
-2. Connect repository to hosting platform
-3. Set environment variables in platform settings
-4. Deploy automatically on push
-
-
-### Environment Variables for Production
-
-Update these for your production environment:
-- `MONGO_URI` - Production MongoDB connection
-- `JWT_SECRET` - Strong random secret
-- `RAZORPAY_KEY_ID` - Production Razorpay keys
-- `BREVO_API_KEY` - Production Brevo API key
-- `FRONTEND_URL` - Production frontend URL
-- `NODE_ENV=production`
-
-------------------------------------------------------------------------------
+---
 
 ## 🐛 Troubleshooting
 
-### Common Issues & Solutions
-
 | Issue | Solution |
 |-------|----------|
-| **MongoDB Connection Error** | Verify MONGO_URI in .env, check network access in Atlas |
-| **JWT Token Expired** | Token expires after 7 days; user needs to re-login |
-| **Email Not Sending** | Check Brevo API key, verify sender email is approved |
-| **Payment Fails** | Ensure Razorpay keys are correct for test/production |
-| **Rooms Not Loading** | Check MongoDB connection and seed data with `npm run seed` |
-| **CORS Errors** | Verify FRONTEND_URL matches axios baseURL configuration |
-| **Build Errors** | Clear node_modules and reinstall: `rm -rf node_modules && npm install` |
+| MongoDB Connection Error | Verify MONGO_URI and IP whitelist in MongoDB Atlas |
+| JWT Token Errors | Ensure JWT_SECRET is correct |
+| Payment Fails | Verify Razorpay keys and amount currency |
+| Email Not Sending | Check Brevo API key and sender email approval |
+| CORS Errors | Update FRONTEND_URL in .env |
+| Port Already in Use | Change PORT in .env |
 
-### Debug Mode
+---
 
-Enable debug logging:
+## 📦 Available Scripts
 
 ```bash
-# Backend
-DEBUG=* npm start
-
-# Frontend
-VITE_DEBUG=true npm run dev
+npm start              # Start development server
+npm run seed           # Seed rooms data
+npm run seed:all       # Seed everything
+npm run seed:users     # Seed demo users
+npm run seed:bookings  # Seed bookings
+npm run seed:offers    # Seed offers
+npm run seed:reviews   # Seed reviews
 ```
 
-------------------------------------------------------------------------------
+---
 
-## 📖 Additional Documentation
+## 🚀 Deployment
 
-- [API Routes Guide](./backend/routes/)
-- [Database Models](./backend/models/)
-- [Component Structure](./frontend/src/components/)
-- [Page Layouts](./frontend/src/pages/)
+### Deploy to Render/Heroku/Railway
 
-------------------------------------------------------------------------------
+1. Push code to GitHub
+2. Connect repository to platform
+3. Set environment variables
+4. Deploy on push
 
-## 🙏 Acknowledgments
+**Production Variables:**
+```env
+MONGO_URI=mongodb+srv://prod:pass@cluster.mongodb.net/db_name
+JWT_SECRET=strong-random-key-min-32-chars
+NODE_ENV=production
+RAZORPAY_KEY_ID=rzp_live_key
+RAZORPAY_KEY_SECRET=live_secret
+FRONTEND_URL=https://yourdomain.com
+```
 
-- Built with the MERN stack
-- Payment processing by [Razorpay](https://razorpay.com)
-- Email service by [Brevo](https://www.brevo.com)
-- UI components from [Lucide React](https://lucide.dev)
-- Styling by [Tailwind CSS](https://tailwindcss.com)
+---
 
-------------------------------------------------------------------------------
+## 🙏 Support
 
-## 🚀 Future Enhancements
+For issues:
+- Check troubleshooting section
+- Review API documentation
+- Verify environment variables
 
-- [ ] Multi-language support
-- [ ] Push notifications
-- [ ] Advanced filters (distance, star rating)
-- [ ] Room image gallery with carousel
-- [ ] Social login (Google, Facebook)
-- [ ] Mobile app (React Native)
-- [ ] Two-factor authentication
-- [ ] Guest wishlists
-- [ ] Advanced search with AI
-- [ ] Integration with calendar APIs
-
-------------------------------------------------------------------------------
+---
 
 ## 📄 License
 
 This project is open-source and free to use for educational and personal projects. For commercial use, please contact the author for licensing options.
 
-------------------------------------------------------------------------------
+---
