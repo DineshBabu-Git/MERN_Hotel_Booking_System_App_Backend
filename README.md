@@ -23,11 +23,11 @@ Password: admin123
 
 ### Test Payment Credentials (Razorpay)
 
-#### Network    |   Card Number   |   CVV & Expiry Date
+#### Network    |   Card Number   |   Use a random CVV and Any future date
 
 - Visa        |  4100 2800 0000 1007	
 - Mastercard  |  5500 6700 0000 1002	
-- RuPay       |  6527 6589 0000 1005  | Use a random CVV and any future date	
+- RuPay       |  6527 6589 0000 1005
 - Diners      |  3608 280009 1007	
 - Amex        |  3402 560004 01007	
 
