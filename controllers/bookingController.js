@@ -108,6 +108,7 @@ exports.createBooking = async (req, res) => {
         });
 
         res.status(201).json({
+            success: true,
             message: "Booking created successfully",
             booking: await booking.populate("roomId")
         });
@@ -123,9 +124,14 @@ exports.getMyBookings = async (req, res) => {
             .populate("roomId")
             .sort({ createdAt: -1 });
 
-        res.json(bookings);
+        res.status(200).json({
+            success: true,
+            count: bookings.length,
+            bookings: bookings
+        });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error("Error fetching my bookings:", err);
+        res.status(500).json({ success: false, message: err.message });
     }
 };
 
@@ -137,17 +143,21 @@ exports.getBookingById = async (req, res) => {
             .populate("userId", "name email phone");
 
         if (!booking) {
-            return res.status(404).json({ message: "Booking not found" });
+            return res.status(404).json({ success: false, message: "Booking not found" });
         }
 
         // Check authorization
         if (booking.userId._id.toString() !== req.user.id && req.user.role !== "admin") {
-            return res.status(403).json({ message: "Not authorized" });
+            return res.status(403).json({ success: false, message: "Not authorized" });
         }
 
-        res.json(booking);
+        res.status(200).json({
+            success: true,
+            booking: booking
+        });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error("Error fetching booking by ID:", err);
+        res.status(500).json({ success: false, message: err.message });
     }
 };
 
@@ -190,7 +200,8 @@ exports.confirmBooking = async (req, res) => {
             // Don't fail the booking confirmation if email fails
         }
 
-        res.json({
+        res.status(200).json({
+            success: true,
             message: "Booking confirmed successfully",
             booking
         });
@@ -245,7 +256,8 @@ exports.cancelBooking = async (req, res) => {
             // Don't fail the cancellation if email fails
         }
 
-        res.json({
+        res.status(200).json({
+            success: true,
             message: "Booking cancelled successfully",
             booking
         });
@@ -270,9 +282,14 @@ exports.getAllBookings = async (req, res) => {
             .populate("roomId")
             .sort({ createdAt: -1 });
 
-        res.json(bookings);
+        res.status(200).json({
+            success: true,
+            count: bookings.length,
+            bookings
+        });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error("Error fetching all bookings:", err);
+        res.status(500).json({ success: false, message: err.message });
     }
 };
 
@@ -339,7 +356,8 @@ exports.updateBookingStatus = async (req, res) => {
             console.error("⚠️ Error preparing status update email:", emailErr.message);
         }
 
-        res.json({
+        res.status(200).json({
+            success: true,
             message: "Booking status updated successfully",
             booking
         });

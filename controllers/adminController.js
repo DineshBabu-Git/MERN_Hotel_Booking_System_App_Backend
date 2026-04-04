@@ -16,7 +16,8 @@ exports.getDashboardStats = async (req, res) => {
         const pendingReviews = await Review.countDocuments({ isApproved: false });
         const cancelledBookings = await Booking.countDocuments({ bookingStatus: "cancelled" });
 
-        res.json({
+        res.status(200).json({
+            success: true,
             totalBookings,
             totalRevenue: totalRevenue[0]?.total || 0,
             totalUsers,
@@ -25,7 +26,8 @@ exports.getDashboardStats = async (req, res) => {
             cancelledBookings
         });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error("Error fetching dashboard stats:", err);
+        res.status(500).json({ success: false, message: err.message });
     }
 };
 
@@ -60,9 +62,14 @@ exports.getMonthlyRevenue = async (req, res) => {
             revenue: item.totalRevenue
         }));
 
-        res.json(formatted);
+        res.status(200).json({
+            success: true,
+            count: formatted.length,
+            data: formatted
+        });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error("Error fetching monthly revenue:", err);
+        res.status(500).json({ success: false, message: err.message });
     }
 };
 
@@ -76,13 +83,15 @@ exports.getOccupancyRate = async (req, res) => {
 
         const occupancyRate = totalRooms > 0 ? (confirmedBookings / totalRooms) * 100 : 0;
 
-        res.json({
+        res.status(200).json({
+            success: true,
             totalRooms,
             occupiedRooms: confirmedBookings,
             occupancyRate: Math.round(occupancyRate * 10) / 10
         });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error("Error fetching occupancy rate:", err);
+        res.status(500).json({ success: false, message: err.message });
     }
 };
 
@@ -124,9 +133,14 @@ exports.getBookingTrends = async (req, res) => {
             revenue: item.revenue
         }));
 
-        res.json(formatted);
+        res.status(200).json({
+            success: true,
+            count: formatted.length,
+            data: formatted
+        });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error("Error fetching booking trends:", err);
+        res.status(500).json({ success: false, message: err.message });
     }
 };
 
@@ -154,7 +168,7 @@ exports.getRoomPerformance = async (req, res) => {
                 }
             },
             {
-                $unwind: "$roomDetails"
+                $unwind: { path: "$roomDetails", preserveNullAndEmptyArrays: true }
             },
             {
                 $sort: { totalRevenue: -1 }
@@ -163,16 +177,21 @@ exports.getRoomPerformance = async (req, res) => {
 
         // Transform to match frontend expectations
         const formatted = performance.map(item => ({
-            name: item.roomDetails.name,
-            roomType: item.roomDetails.roomType,
+            name: item.roomDetails?.name || "Unknown Room",
+            roomType: item.roomDetails?.roomType || "Unknown",
             bookingCount: item.bookingCount,
             totalRevenue: item.totalRevenue,
-            averageRating: item.roomDetails.rating || 0
+            averageRating: item.roomDetails?.rating || 0
         }));
 
-        res.json(formatted);
+        res.status(200).json({
+            success: true,
+            count: formatted.length,
+            data: formatted
+        });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error("Error fetching room performance:", err);
+        res.status(500).json({ success: false, message: err.message });
     }
 };
 
@@ -201,7 +220,8 @@ exports.getReviewAnalytics = async (req, res) => {
             ratingDistribution[i] = found ? found.count : 0;
         }
 
-        res.json({
+        res.status(200).json({
+            success: true,
             ratingDistribution,
             totalReviews,
             approvedReviews,
@@ -209,7 +229,8 @@ exports.getReviewAnalytics = async (req, res) => {
             averageRating: await getAverageRating()
         });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error("Error fetching review analytics:", err);
+        res.status(500).json({ success: false, message: err.message });
     }
 };
 
@@ -240,10 +261,15 @@ exports.getUserDemographics = async (req, res) => {
             }
         ]);
 
-        // Return as array directly since frontend expects array
-        res.json(recentUsers);
+        // Return as array directly with success flag
+        res.status(200).json({
+            success: true,
+            count: recentUsers.length,
+            data: recentUsers
+        });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error("Error fetching user demographics:", err);
+        res.status(500).json({ success: false, message: err.message });
     }
 };
 
