@@ -9,10 +9,24 @@ const { sendPaymentReceipt } = require("../utils/sendEmail");
 // Create Order (Razorpay)
 exports.createPaymentIntent = async (req, res) => {
     try {
-        const { amount, bookingId, currency = "USD" } = req.body;
+        // Validate Razorpay credentials
+        if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+            return res.status(500).json({
+                success: false,
+                message: "Payment gateway not configured. Please contact support.",
+                data: null
+            });
+        }
 
+        const { amount, bookingId, currency = "INR" } = req.body;
+
+        // Validate required fields
         if (!amount || amount <= 0) {
-            return res.status(400).json({ message: "Invalid amount" });
+            return res.status(400).json({
+                success: false,
+                message: "Invalid amount. Amount must be greater than 0.",
+                data: null
+            });
         }
 
         const order = await razorpay.orders.create({
@@ -24,14 +38,24 @@ exports.createPaymentIntent = async (req, res) => {
             }
         });
 
-        res.json({
-            orderId: order.id,
-            amount: order.amount,
-            currency: order.currency,
-            receipt: order.receipt
+        res.status(201).json({
+            success: true,
+            message: "Payment order created successfully",
+            data: {
+                orderId: order.id,
+                amount: order.amount,
+                currency: order.currency,
+                receipt: order.receipt
+            },
+            count: 1
         });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error("Error creating payment intent:", err);
+        res.status(500).json({
+            success: false,
+            message: err.message || "Failed to create payment order",
+            data: null
+        });
     }
 };
 
@@ -40,8 +64,13 @@ exports.confirmPayment = async (req, res) => {
     try {
         const { razorpayPaymentId, razorpayOrderId, razorpaySignature, bookingId } = req.body;
 
+        // Validate required fields
         if (!razorpayPaymentId || !razorpayOrderId || !razorpaySignature || !bookingId) {
-            return res.status(400).json({ message: "Missing required payment details" });
+            return res.status(400).json({
+                success: false,
+                message: "Missing required payment details",
+                data: null
+            });
         }
 
         // Verify payment signature
@@ -51,7 +80,11 @@ exports.confirmPayment = async (req, res) => {
         const generated_signature = hmac.digest("hex");
 
         if (generated_signature !== razorpaySignature) {
-            return res.status(400).json({ message: "Payment verification failed" });
+            return res.status(400).json({
+                success: false,
+                message: "Payment verification failed - Invalid signature",
+                data: null
+            });
         }
 
         // Fetch payment details from Razorpay to verify
@@ -59,8 +92,11 @@ exports.confirmPayment = async (req, res) => {
 
         if (payment.status !== "captured") {
             return res.status(400).json({
+                success: false,
                 message: "Payment not successful",
-                status: payment.status
+                data: {
+                    status: payment.status
+                }
             });
         }
 
@@ -78,7 +114,11 @@ exports.confirmPayment = async (req, res) => {
         ).populate("roomId");
 
         if (!booking) {
-            return res.status(404).json({ message: "Booking not found" });
+            return res.status(404).json({
+                success: false,
+                message: "Booking not found",
+                data: null
+            });
         }
 
         // Increment offer usage count if discount code was used
@@ -94,12 +134,19 @@ exports.confirmPayment = async (req, res) => {
         // Send payment receipt
         await sendPaymentReceipt(booking);
 
-        res.json({
+        res.status(200).json({
+            success: true,
             message: "Payment confirmed successfully",
-            booking
+            data: booking,
+            count: 1
         });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error("Error confirming payment:", err);
+        res.status(500).json({
+            success: false,
+            message: err.message || "Failed to confirm payment",
+            data: null
+        });
     }
 };
 
@@ -108,18 +155,36 @@ exports.getPaymentStatus = async (req, res) => {
     try {
         const { paymentId } = req.params;
 
+        if (!paymentId) {
+            return res.status(400).json({
+                success: false,
+                message: "Payment ID is required",
+                data: null
+            });
+        }
+
         const payment = await razorpay.payments.fetch(paymentId);
 
-        res.json({
-            status: payment.status,
-            amount: payment.amount / 100, // Convert Cents to Doller
-            currency: payment.currency,
-            method: payment.method,
-            email: payment.email,
-            contact: payment.contact
+        res.status(200).json({
+            success: true,
+            message: "Payment status retrieved successfully",
+            data: {
+                status: payment.status,
+                amount: payment.amount / 100, // Convert Cents to Dollar
+                currency: payment.currency,
+                method: payment.method,
+                email: payment.email,
+                contact: payment.contact
+            },
+            count: 1
         });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error("Error fetching payment status:", err);
+        res.status(500).json({
+            success: false,
+            message: err.message || "Failed to fetch payment status",
+            data: null
+        });
     }
 };
 
@@ -128,18 +193,38 @@ exports.refundPayment = async (req, res) => {
     try {
         const { bookingId, reason } = req.body;
 
+        if (!bookingId) {
+            return res.status(400).json({
+                success: false,
+                message: "Booking ID is required",
+                data: null
+            });
+        }
+
         const booking = await Booking.findById(bookingId);
 
         if (!booking) {
-            return res.status(404).json({ message: "Booking not found" });
+            return res.status(404).json({
+                success: false,
+                message: "Booking not found",
+                data: null
+            });
         }
 
         if (booking.paymentStatus !== "paid") {
-            return res.status(400).json({ message: "Only paid bookings can be refunded" });
+            return res.status(400).json({
+                success: false,
+                message: "Only paid bookings can be refunded",
+                data: null
+            });
         }
 
         if (!booking.razorpayPaymentId) {
-            return res.status(400).json({ message: "No payment ID found for refund" });
+            return res.status(400).json({
+                success: false,
+                message: "No payment ID found for refund",
+                data: null
+            });
         }
 
         // Create refund with Razorpay
@@ -156,15 +241,24 @@ exports.refundPayment = async (req, res) => {
         booking.bookingStatus = "cancelled";
         await booking.save();
 
-        res.json({
+        res.status(200).json({
+            success: true,
             message: "Refund processed successfully",
-            refundId: refund.id,
-            refundAmount: refund.amount / 100, // Convert to USD
-            status: refund.status,
-            booking
+            data: {
+                refundId: refund.id,
+                refundAmount: refund.amount / 100, // Convert to USD
+                status: refund.status,
+                booking
+            },
+            count: 1
         });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error("Error processing refund:", err);
+        res.status(500).json({
+            success: false,
+            message: err.message || "Failed to process refund",
+            data: null
+        });
     }
 };
 
@@ -183,7 +277,11 @@ exports.handleRazorpayWebhook = async (req, res) => {
             const signature = req.headers["x-razorpay-signature"];
 
             if (digest !== signature) {
-                return res.status(400).json({ message: "Webhook verification failed" });
+                return res.status(400).json({
+                    success: false,
+                    message: "Webhook verification failed",
+                    data: null
+                });
             }
         }
 
@@ -204,8 +302,17 @@ exports.handleRazorpayWebhook = async (req, res) => {
                 console.log("Unhandled event type:", event.event);
         }
 
-        res.json({ received: true });
+        res.status(200).json({
+            success: true,
+            message: "Webhook processed successfully",
+            data: { received: true }
+        });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error("Error processing webhook:", err);
+        res.status(500).json({
+            success: false,
+            message: err.message || "Failed to process webhook",
+            data: null
+        });
     }
 };
