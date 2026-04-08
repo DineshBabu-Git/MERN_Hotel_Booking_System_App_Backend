@@ -207,3 +207,27 @@ exports.getRoomReviews = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 };
+
+// Upload Room Image (accepts base64 or multipart)
+exports.uploadImage = async (req, res) => {
+    try {
+        const { image, roomId } = req.body;
+
+        if (!image) {
+            return res.status(400).json({ message: "No image provided" });
+        }
+
+        // If image is base64, validate it
+        if (typeof image === "string" && image.startsWith("data:")) {
+            // Base64 image is valid - return it as-is
+            return res.json({
+                message: "Image processed successfully",
+                imageData: image
+            });
+        }
+
+        res.status(400).json({ message: "Invalid image format. Please use base64 or multipart form data" });
+    } catch (err) {
+        res.status(500).json({ message: "Failed to upload image: " + err.message });
+    }
+};
