@@ -9,7 +9,7 @@ const app = express();
 const MONGO_URI = process.env.MONGO_URI;
 const JWT_SECRET = process.env.JWT_SECRET;
 const PORT = process.env.PORT || 5000;
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+const FRONTEND_URL = process.env.FRONTEND_URL;
 
 // Warn if critical variables are missing (but don't crash)
 if (!MONGO_URI) {
@@ -18,12 +18,15 @@ if (!MONGO_URI) {
 if (!JWT_SECRET) {
     console.warn("⚠️  WARNING: JWT_SECRET environment variable is not set");
 }
+if (!FRONTEND_URL) {
+    console.warn("⚠️  WARNING: FRONTEND_URL environment variable is not set — CORS will allow all origins");
+}
 
 // ==================== MIDDLEWARE ====================
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use(cors({
-    origin: FRONTEND_URL,
+    origin: FRONTEND_URL || true,
     credentials: true
 }));
 
