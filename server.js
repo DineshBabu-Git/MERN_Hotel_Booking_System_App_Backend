@@ -13,6 +13,9 @@ app.use(cors({
     credentials: true
 }));
 
+// Serve static files from public folder (for uploaded images)
+app.use("/images", express.static("public/images"));
+
 // Database Connection
 mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log("✓ MongoDB Connected"))

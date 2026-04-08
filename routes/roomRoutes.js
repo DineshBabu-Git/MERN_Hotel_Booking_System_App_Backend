@@ -3,9 +3,11 @@ const express = require("express");
 const router = express.Router();
 const roomController = require("../controllers/roomController");
 const { protect, adminOnly } = require("../middleware/authMiddleware");
+const upload = require("../middleware/uploadMiddleware");
 
 // Admin routes - POST, PUT, DELETE before GET
 router.post("/", protect, adminOnly, roomController.createRoom);
+router.post("/upload/image", protect, adminOnly, upload.single("image"), roomController.uploadImage);
 
 // Public routes - specific routes BEFORE parameterized routes
 router.get("/mock", roomController.getMockRooms);

@@ -206,3 +206,37 @@ exports.getRoomReviews = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 };
+
+// Upload Room Image
+exports.uploadImage = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: "No image file provided",
+                data: null
+            });
+        }
+
+        // Return only the filename (or can return full path)
+        const imageFilename = req.file.filename;
+        const imagePath = `/images/${imageFilename}`;
+
+        res.status(200).json({
+            success: true,
+            message: "Image uploaded successfully",
+            data: {
+                filename: imageFilename,
+                path: imagePath,
+                url: `${req.protocol}://${req.get("host")}${imagePath}`
+            },
+            count: 1
+        });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: err.message || "Failed to upload image",
+            data: null
+        });
+    }
+};
