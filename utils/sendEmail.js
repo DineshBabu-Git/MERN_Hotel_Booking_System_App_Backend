@@ -152,9 +152,9 @@ exports.sendPaymentReceipt = async (booking) => {
                     <li><strong>Booking ID:</strong> ${booking._id}</li>
                     <li><strong>Payment ID:</strong> ${booking.razorpayPaymentId || "N/A"}</li>
                     <li><strong>Payment Date:</strong> ${new Date().toLocaleDateString()}</li>
-                    <li><strong>Original Amount:</strong> ₹${booking.originalPrice.toFixed(2)}</li>
-                    ${booking.discountAmount ? `<li><strong>Discount:</strong> -₹${booking.discountAmount.toFixed(2)}</li>` : ""}
-                    <li><strong>Total Amount Paid:</strong> ₹${booking.totalPrice.toFixed(2)}</li>
+                    <li><strong>Original Amount:</strong> $${booking.originalPrice.toFixed(2)}</li>
+                    ${booking.discountAmount ? `<li><strong>Discount:</strong> -$${booking.discountAmount.toFixed(2)}</li>` : ""}
+                    <li><strong>Total Amount Paid:</strong> $${booking.totalPrice.toFixed(2)}</li>
                     <li><strong>Payment Method:</strong> ${booking.paymentMethod || "Razorpay"}</li>
                 </ul>
                 <p>Your booking details will be sent separately.</p>
