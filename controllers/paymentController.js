@@ -64,8 +64,16 @@ exports.confirmPayment = async (req, res) => {
     try {
         const { razorpayPaymentId, razorpayOrderId, razorpaySignature, bookingId } = req.body;
 
+        console.log("Payment verification attempt:", { razorpayPaymentId, razorpayOrderId, razorpaySignature, bookingId });
+
         // Validate required fields
         if (!razorpayPaymentId || !razorpayOrderId || !razorpaySignature || !bookingId) {
+            console.error("Missing payment fields:", {
+                razorpayPaymentId: !!razorpayPaymentId,
+                razorpayOrderId: !!razorpayOrderId,
+                razorpaySignature: !!razorpaySignature,
+                bookingId: !!bookingId
+            });
             return res.status(400).json({
                 success: false,
                 message: "Missing required payment details",
@@ -80,6 +88,10 @@ exports.confirmPayment = async (req, res) => {
         const generated_signature = hmac.digest("hex");
 
         if (generated_signature !== razorpaySignature) {
+            console.error("Signature mismatch:", {
+                expected: generated_signature,
+                received: razorpaySignature
+            });
             return res.status(400).json({
                 success: false,
                 message: "Payment verification failed - Invalid signature",
@@ -90,10 +102,13 @@ exports.confirmPayment = async (req, res) => {
         // Fetch payment details from Razorpay to verify
         const payment = await razorpay.payments.fetch(razorpayPaymentId);
 
+        console.log("Payment status from Razorpay:", payment.status);
+
         if (payment.status !== "captured") {
+            console.error("Payment not captured. Status:", payment.status);
             return res.status(400).json({
                 success: false,
-                message: "Payment not successful",
+                message: `Payment not successful. Status: ${payment.status}`,
                 data: {
                     status: payment.status
                 }
@@ -114,6 +129,7 @@ exports.confirmPayment = async (req, res) => {
         ).populate("roomId");
 
         if (!booking) {
+            console.error("Booking not found for ID:", bookingId);
             return res.status(404).json({
                 success: false,
                 message: "Booking not found",
@@ -133,6 +149,8 @@ exports.confirmPayment = async (req, res) => {
 
         // Send payment receipt
         await sendPaymentReceipt(booking);
+
+        console.log("Payment confirmed successfully for booking:", bookingId);
 
         res.status(200).json({
             success: true,
