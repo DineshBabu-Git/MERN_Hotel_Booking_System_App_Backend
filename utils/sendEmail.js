@@ -252,7 +252,7 @@ exports.sendUpgradeReminderEmail = async (userEmail, roomName) => {
 };
 
 // Send Review Approval Notification Email
-exports.sendReviewApprovalEmail = async (userEmail, userName, roomName, reviewComment) => {
+exports.sendReviewApprovalEmail = async (userEmail, userName, roomName, roomType, reviewComment) => {
     return new Promise(async (resolve, reject) => {
         try {
             // Validate email address
@@ -276,7 +276,7 @@ exports.sendReviewApprovalEmail = async (userEmail, userName, roomName, reviewCo
                         <h3>Review Details:</h3>
                         <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px;">
                             <ul style="list-style: none; padding: 0;">
-                                <li style="margin-bottom: 10px;"><strong>Room:</strong> ${roomName}</li>
+                                <li style="margin-bottom: 10px;"><strong>Room:</strong> ${roomName} (${roomType})</li>
                                 <li style="margin-bottom: 10px;"><strong>Your Review:</strong> "${reviewComment.substring(0, 100)}${reviewComment.length > 100 ? '...' : ''}"</li>
                                 <li><strong>Status:</strong> <span style="color: #28a745; font-weight: bold;">✓ Approved</span></li>
                             </ul>
