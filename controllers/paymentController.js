@@ -18,7 +18,7 @@ exports.createPaymentIntent = async (req, res) => {
             });
         }
 
-        const { amount, bookingId, currency = "USD" } = req.body;
+        const { amount, bookingId, currency = "INR" } = req.body;
 
         // Validate required fields
         if (!amount || amount <= 0) {
