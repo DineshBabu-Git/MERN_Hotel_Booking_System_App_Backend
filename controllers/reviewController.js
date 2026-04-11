@@ -189,16 +189,17 @@ exports.approveReview = async (req, res) => {
         try {
             const user = review.userId;
             const room = review.roomId;
-            
+
             console.log(`Sending review approval email to: ${user.email}`);
-            
+
             await sendReviewApprovalEmail(
                 user.email,
                 user.name || "Guest",
-                room.roomType || room.roomNumber || "Your Stayed Room",
+                room.name || "Room",
+                room.roomType || room.roomNumber || "Standard",
                 review.comment
             );
-            
+
             emailSent = true;
             console.log(`✓ Email sent successfully to ${user.email}`);
         } catch (emailError) {
@@ -207,7 +208,7 @@ exports.approveReview = async (req, res) => {
         }
 
         res.json({
-            message: emailSent 
+            message: emailSent
                 ? "Review approved successfully! Notification email sent to user."
                 : "Review approved successfully. (Email notification encountered an issue)",
             review: {
