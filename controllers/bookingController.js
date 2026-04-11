@@ -339,7 +339,7 @@ exports.updateBookingStatus = async (req, res) => {
                         <li><strong>Room:</strong> ${booking.roomId.name}</li>
                         <li><strong>Check-in:</strong> ${new Date(booking.checkIn).toLocaleDateString()}</li>
                         <li><strong>Check-out:</strong> ${new Date(booking.checkOut).toLocaleDateString()}</li>
-                        <li><strong>Total Price:</strong> $${booking.totalPrice.toFixed(2)}</li>
+                        <li><strong>Total Price:</strong> ₹${booking.totalPrice.toFixed(2)}</li>
                         <li><strong>Status:</strong> ${bookingStatus.charAt(0).toUpperCase() + bookingStatus.slice(1)}</li>
                     </ul>
                     <p>Best regards,<br>Hotel Management Team</p>

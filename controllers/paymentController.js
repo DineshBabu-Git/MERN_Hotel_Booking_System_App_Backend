@@ -18,7 +18,7 @@ exports.createPaymentIntent = async (req, res) => {
             });
         }
 
-        const { amount, bookingId, currency = "USD" } = req.body;
+        const { amount, bookingId, currency = "INR" } = req.body;
 
         // Validate required fields
         if (!amount || amount <= 0) {
@@ -30,7 +30,7 @@ exports.createPaymentIntent = async (req, res) => {
         }
 
         const order = await razorpay.orders.create({
-            amount: Math.round(amount * 100), // Razorpay uses cents (1 USD = 100 cents)
+            amount: Math.round(amount * 100), // Razorpay uses Paise (1 Rupee = 100 Paise)
             currency,
             receipt: bookingId || `order_${Date.now()}`,
             notes: {
@@ -188,7 +188,7 @@ exports.getPaymentStatus = async (req, res) => {
             message: "Payment status retrieved successfully",
             data: {
                 status: payment.status,
-                amount: payment.amount / 100, // Convert Cents to Dollar
+                amount: payment.amount / 100, // Convert Paise to Rupee
                 currency: payment.currency,
                 method: payment.method,
                 email: payment.email,
@@ -247,7 +247,7 @@ exports.refundPayment = async (req, res) => {
 
         // Create refund with Razorpay
         const refund = await razorpay.payments.refund(booking.razorpayPaymentId, {
-            amount: Math.round(booking.totalPrice * 100), // Cents
+            amount: Math.round(booking.totalPrice * 100), // Paise
             notes: {
                 reason: reason || "requested_by_customer",
                 bookingId: bookingId
