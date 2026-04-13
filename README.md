@@ -206,6 +206,8 @@ The backend will be available at: **http://localhost:5000**
 | POST | `/auth/login` | Login user | ❌ |
 | GET | `/auth/profile` | Get user profile | ✅ |
 | PUT | `/auth/profile` | Update profile | ✅ |
+| POST | `/auth/save-room` | Save room to favorites | ✅ |
+| POST | `/auth/remove-saved-room` | Remove saved room | ✅ |
 
 **Login Request:**
 ```json
@@ -237,7 +239,11 @@ The backend will be available at: **http://localhost:5000**
 |--------|----------|-------------|------|
 | GET | `/rooms` | Get all rooms | ❌ |
 | GET | `/rooms/:id` | Get room details | ❌ |
+| GET | `/rooms/mock` | Get mock rooms | ❌ |
+| GET | `/rooms/availability` | Check room availability | ❌ |
+| GET | `/rooms/:id/reviews` | Get reviews for a room | ❌ |
 | POST | `/rooms` | Create room | ✅ Admin |
+| POST | `/rooms/upload` | Upload room image | ✅ Admin |
 | PUT | `/rooms/:id` | Update room | ✅ Admin |
 | DELETE | `/rooms/:id` | Delete room | ✅ Admin |
 
@@ -247,9 +253,11 @@ The backend will be available at: **http://localhost:5000**
 
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| GET | `/bookings` | Get user bookings | ✅ |
-| POST | `/bookings` | Create booking | ✅ |
+| GET | `/bookings` | Get all bookings | ✅ Admin |
+| GET | `/bookings/my-bookings` | Get user bookings | ✅ |
 | GET | `/bookings/:id` | Get booking details | ✅ |
+| POST | `/bookings` | Create booking | ✅ |
+| PUT | `/bookings/:id/confirm` | Confirm booking | ✅ |
 | PUT | `/bookings/:id/cancel` | Cancel booking | ✅ |
 | PUT | `/bookings/:id/status` | Update status | ✅ Admin |
 
@@ -261,7 +269,9 @@ The backend will be available at: **http://localhost:5000**
 |--------|----------|-------------|------|
 | POST | `/payments/create-order` | Create order | ✅ |
 | POST | `/payments/verify` | Verify payment | ✅ |
-| GET | `/payments/:id/status` | Check status | ✅ |
+| POST | `/payments/refund` | Refund payment | ✅ |
+| GET | `/payments/:paymentId/status` | Check payment status | ✅ |
+| POST | `/payments/webhook` | Razorpay webhook | ❌ |
 
 ---
 
@@ -269,10 +279,14 @@ The backend will be available at: **http://localhost:5000**
 
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| GET | `/reviews` | Get all reviews | ❌ |
+| GET | `/reviews` | Get all reviews | ✅ Admin |
+| GET | `/reviews/my-reviews` | Get user's reviews | ✅ |
 | GET | `/reviews/room/:roomId` | Get room reviews | ❌ |
 | POST | `/reviews` | Submit review | ✅ |
+| PUT | `/reviews/:id` | Update review | ✅ |
 | PUT | `/reviews/:id/approve` | Approve review | ✅ Admin |
+| PUT | `/reviews/:id/response` | Add admin response | ✅ Admin |
+| DELETE | `/reviews/:id` | Delete review | ✅ |
 
 ---
 
@@ -280,9 +294,10 @@ The backend will be available at: **http://localhost:5000**
 
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| GET | `/offers` | Get active offers | ❌ |
-| POST | `/offers/validate` | Validate code | ✅ |
+| GET | `/offers/active` | Get active offers | ❌ |
+| POST | `/offers/validate` | Validate offer code | ❌ |
 | POST | `/offers` | Create offer | ✅ Admin |
+| GET | `/offers` | Get all offers | ✅ Admin |
 | PUT | `/offers/:id` | Update offer | ✅ Admin |
 | DELETE | `/offers/:id` | Delete offer | ✅ Admin |
 
@@ -297,6 +312,8 @@ The backend will be available at: **http://localhost:5000**
 | GET | `/admin/occupancy` | Occupancy rates | ✅ Admin |
 | GET | `/admin/trends/booking` | Booking trends | ✅ Admin |
 | GET | `/admin/performance/rooms` | Room performance | ✅ Admin |
+| GET | `/admin/analytics/reviews` | Review analytics | ✅ Admin |
+| GET | `/admin/demographics/users` | User demographics | ✅ Admin |
 
 ---
 
